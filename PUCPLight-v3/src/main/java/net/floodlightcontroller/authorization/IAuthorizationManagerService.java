@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.OFPort;
+import net.floodlightcontroller.authorization.bean.Community;
 
 import net.floodlightcontroller.core.module.IFloodlightService;
 
@@ -16,9 +17,9 @@ public interface IAuthorizationManagerService extends IFloodlightService {
 	 * 
 	 * 
 	 */
-	public void queryDatabase(String identity, String mac);
+	public Collection<Community> getPerUserCommunities(String identity, String mac);
 
-	public List<String> getAllCommunities();
+	public Collection<Community> getAllCommunities();
 	
 
 }

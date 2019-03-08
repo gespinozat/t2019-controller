@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.MappingJsonFactory;
 
+import net.floodlightcontroller.authorization.bean.Community;
+
 import org.restlet.data.Status;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
@@ -20,12 +22,12 @@ import org.slf4j.LoggerFactory;
 public class AuthorizationResource extends ServerResource {
     protected static Logger log = LoggerFactory.getLogger(AuthorizationResource.class);
     
-    public class UserDefinition {
-        public String identity = null;
-        public String mac = null;
+    public class CommunityDefinition {
+        public String id = null;
+        public String name = null;
     }
     
-    protected void jsonToUserDefinition(String json, UserDefinition auth_user) throws IOException {
+    protected void jsonToUserDefinition(String json, CommunityDefinition com) throws IOException {
         MappingJsonFactory f = new MappingJsonFactory();
         JsonParser jp;
         
@@ -49,14 +51,14 @@ public class AuthorizationResource extends ServerResource {
             jp.nextToken();
             if (jp.getText().equals("")) 
                 continue;
-            else if (n.equals("auth_user")) {
+            else if (n.equals("community")) {
                 while (jp.nextToken() != JsonToken.END_OBJECT) {
                     String field = jp.getCurrentName();
                     if (field == null) continue;
-                    if (field.equals("identity")) {
-                    	auth_user.identity = jp.getText();
-                    } else if (field.equals("mac")) {
-                    	auth_user.mac = jp.getText();
+                    if (field.equals("id")) {
+                    	com.id = jp.getText();
+                    } else if (field.equals("name")) {
+                    	com.name = jp.getText();
                     } else {
                         log.warn("Unrecognized field {} in " +
                         		"parsing network definition", 
@@ -69,55 +71,55 @@ public class AuthorizationResource extends ServerResource {
         jp.close();
     }
     
-    /*
+    
     @Get("json")
-    public Collection <VirtualNetwork> retrieve() {
-        IVirtualNetworkService vns =
-                (IVirtualNetworkService)getContext().getAttributes().
-                    get(IVirtualNetworkService.class.getCanonicalName());
+    public Collection <Community> retrieve() {
+        IAuthorizationManagerService coms =
+                (IAuthorizationManagerService)getContext().getAttributes().
+                    get(IAuthorizationManagerService.class.getCanonicalName());
         
-        return vns.listNetworks();               
+        return coms.getAllCommunities();               
     }
-    */
+    
     
     @Put
     @Post
-    public String queryDatabase(String postData) {        
-        UserDefinition auth_user = new UserDefinition();
+    public String getCommunitiesPerUser(String postData) {        
+    	CommunityDefinition com = new CommunityDefinition();
         try {
-        	jsonToUserDefinition(postData, auth_user);
+        	jsonToUserDefinition(postData, com);
         } catch (IOException e) {
             log.error("Could not parse JSON {}", e.getMessage());
         }
         
         // We try to get the ID from the URI only if it's not
         // in the POST data 
-        if (auth_user.identity == null) {
-	        String identity = (String) getRequestAttributes().get("identity");
-	        if ((identity != null) && (!identity.equals("null")))
-	        	auth_user.identity = identity;
+        if (com.id == null) {
+	        String id = (String) getRequestAttributes().get("community");
+	        if ((id != null) && (!id.equals("null")))
+	        	com.id = id;
         }
         
-        IAuthorizationManagerService users =
+        IAuthorizationManagerService coms =
                 (IAuthorizationManagerService)getContext().getAttributes().
                     get(IAuthorizationManagerService.class.getCanonicalName());
 
-        users.queryDatabase(auth_user.identity, auth_user.mac);
+        coms.getPerUserCommunities(com.id, com.name);
         setStatus(Status.SUCCESS_OK);
         return "{\"status\":\"ok\"}";
     }
     
-    /*
+    
     @Delete
     public String deleteNetwork() {
-        IVirtualNetworkService vns =
-                (IVirtualNetworkService)getContext().getAttributes().
-                    get(IVirtualNetworkService.class.getCanonicalName());
-        String guid = (String) getRequestAttributes().get("network");
-        vns.deleteNetwork(guid);
+        IAuthorizationManagerService coms =
+                (IAuthorizationManagerService)getContext().getAttributes().
+                    get(IAuthorizationManagerService.class.getCanonicalName());
+        String id = (String) getRequestAttributes().get("community");
+        //coms.deleteCommunity(id); PENDING creat method and declare in the interface IAuthorizationManagerService
         setStatus(Status.SUCCESS_OK);
         return "{\"status\":\"ok\"}";
     }
-    */
+    
 }
 

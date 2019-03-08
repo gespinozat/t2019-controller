@@ -98,6 +98,10 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 	protected IRoutingService routingService;
 	protected ITopologyService topologyService;
 	
+	protected Map<String, Community> allCois;
+	protected Map<String, Community> perUserCois;
+	
+	
 	private OFFactory factory = OFFactories.getFactory(OFVersion.OF_13);
 	
 	protected DCommunity dcom = new DCommunity();
@@ -116,20 +120,22 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 
 	// IAuthorizationManagerService
 	@Override
-	public void queryDatabase(String identity, String mac) {
+	public Collection<Community> getPerUserCommunities(String identity, String mac) {		
 		if (log.isInfoEnabled()) {
-			log.info("Authorization running : User {} ", new Object[] { mac, identity });
-			log.info(identity);
-			log.info(mac);
+			log.info("Getting communities for: User {}, logged in MAC {} ", new Object[] { identity, mac });
+			//log.info(identity);
+			//log.info(mac);
 		}
-		
-		//Logica de query a la base de datos. Pendiente definir como se manejara la base de datos.
+		return perUserCois.values();
 	}
 	
 	@Override
-	public List<String> getAllCommunities() {
+	public Collection<Community> getAllCommunities() {
+		Collection<Community> l= new ArrayList<Community>();
 		// TODO Auto-generated method stub
-		return null;
+		
+		//return allCois.values();
+		return comunidades;
 	}
 			
 
@@ -171,12 +177,15 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 		routingService = context.getServiceImpl(IRoutingService.class);
 		topologyService = context.getServiceImpl(ITopologyService.class);
 		
+		allCois = new ConcurrentHashMap<String, Community>();
+		perUserCois = new ConcurrentHashMap<String, Community>();
+		
 	}
 
 	@Override
 	public void startUp(FloodlightModuleContext context) {
 		restApiService.addRestletRoutable(new AuthorizationManagerWebRoutable());
-		ver();
+		//ver();
 		
 	}	
 		
