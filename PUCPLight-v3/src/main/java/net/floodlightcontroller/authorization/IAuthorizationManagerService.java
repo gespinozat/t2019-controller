@@ -18,7 +18,7 @@ public interface IAuthorizationManagerService extends IFloodlightService {
 	 */
 	public void queryDatabase(String identity, String mac);
 
-	public List<String> getCommunities(String indentity);
+	public List<String> getAllCommunities();
 	
 
 }

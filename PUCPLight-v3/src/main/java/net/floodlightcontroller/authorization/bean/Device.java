@@ -1,4 +1,5 @@
-package net.floodlightcontroller.authorization;
+package net.floodlightcontroller.authorization.bean;
+
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -16,21 +17,31 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.floodlightcontroller.devicemanager.SwitchPort;
 
 
-@JsonSerialize(using=AuthorizationManagerSerializer.class)
-public class AuthenticatedUser{
-    protected String identity; // network name
-    protected String mac; // network id
-	
+@JsonSerialize(using=DeviceSerializer.class)
+public class Device{
+    protected String mac; // device mac
+	protected String name; // device name
     /**
-     * Constructor requires network name and id
-     * @param identity: user identity
+     * Constructor requires mac
      * @param mac: mac address 
      */
-    public AuthenticatedUser(String name, String guid) {
-        this.identity = name;
-        this.mac = guid;		
+    public Device(String mac,String name) {
+        this.mac = mac;
+        this.name = name;
         return;        
-    }  
+    }
+	public String getMac() {
+		return mac;
+	}
+	public void setMac(String mac) {
+		this.mac = mac;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}  
     
     
    

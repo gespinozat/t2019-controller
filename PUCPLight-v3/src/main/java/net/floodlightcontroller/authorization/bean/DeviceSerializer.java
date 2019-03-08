@@ -1,4 +1,4 @@
-package net.floodlightcontroller.authorization;
+package net.floodlightcontroller.authorization.bean;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -11,20 +11,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-/**
- * Serialize a VirtualNetwork object
- * @author KC Wang
- */
-public class AuthorizationManagerSerializer extends JsonSerializer<AuthenticatedUser> {
+public class DeviceSerializer extends JsonSerializer<Device> {
 
     @Override
-    public void serialize(AuthenticatedUser auth_user, JsonGenerator jGen,
+    public void serialize(Device dev, JsonGenerator jGen,
             SerializerProvider serializer) throws IOException,
             JsonProcessingException {
         jGen.writeStartObject();
         
-        jGen.writeStringField("identity", auth_user.identity);
-        jGen.writeStringField("mac", auth_user.mac);     
+        jGen.writeStringField("mac", dev.mac);
+        jGen.writeStringField("name", dev.name);
         
         jGen.writeEndObject();
     }

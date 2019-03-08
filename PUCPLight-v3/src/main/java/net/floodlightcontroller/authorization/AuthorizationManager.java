@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import net.floodlightcontroller.authorization.dao.DCommunity;
+import net.floodlightcontroller.authorization.bean.Community;
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IOFMessageListener;
@@ -97,6 +99,20 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 	protected ITopologyService topologyService;
 	
 	private OFFactory factory = OFFactories.getFactory(OFVersion.OF_13);
+	
+	protected DCommunity dcom = new DCommunity();
+	
+	List<Community> comunidades = dcom.german();
+	Iterator<Community> iterar = comunidades.iterator();
+	
+	public void ver() {
+		
+		for (int i = 0; i < comunidades.size(); i++) {
+			log.info("El nombre de la comunidad {} es {} ", new Object[] {comunidades.get(i).getId(),comunidades.get(i).getName() });
+		}
+		
+	}
+	
 
 	// IAuthorizationManagerService
 	@Override
@@ -111,7 +127,7 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 	}
 	
 	@Override
-	public List<String> getCommunities(String indentity) {
+	public List<String> getAllCommunities() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -154,11 +170,14 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 		sfp = context.getServiceImpl(IStaticFlowEntryPusherService.class);
 		routingService = context.getServiceImpl(IRoutingService.class);
 		topologyService = context.getServiceImpl(ITopologyService.class);
+		
 	}
 
 	@Override
 	public void startUp(FloodlightModuleContext context) {
 		restApiService.addRestletRoutable(new AuthorizationManagerWebRoutable());
+		ver();
+		
 	}	
 		
 }
