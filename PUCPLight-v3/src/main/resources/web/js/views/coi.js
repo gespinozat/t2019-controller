@@ -41,7 +41,7 @@ window.CoiListView = Backbone.View.extend({
 
     render:function (eventName) {
         $(this.el).html(this.template({ncois:cl.length}));
-        _.each(this.model.models, function (h) {
+        _.each(this.model.models, function (c) {
             $(this.el).find('table.coi-table > tbody')
                 .append(new CoiListItemView({model:c}).render().el);
         }, this);

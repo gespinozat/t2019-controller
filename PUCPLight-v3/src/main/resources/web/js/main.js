@@ -28,7 +28,7 @@ var AppRouter = Backbone.Router.extend({
         "host/:id":"hostDetails",
         // Entry by GET
         "cois":"coiList",
-        "cois/:id":"coiDetails",
+        "coi/:id":"coiDetails",
         // "vlans":"vlanList" // maybe one day
         // "vlan/:id":"vlanDetails"
     },
@@ -145,13 +145,13 @@ tpl.loadTemplates(['home', 'status', 'topology', 'header', 'switch', 'switch-lis
             // wait for the page to be rendered before loading any data
             swl.fetch();
             hl.fetch();
-            //cl.fetch();
+            cl.fetch();
             
             setInterval(function () {
                 if(updating) {
                     swl.fetch();
                     hl.fetch();
-                    //cl.fetch();
+                    cl.fetch();
                 }
             }, 3000);
         });
