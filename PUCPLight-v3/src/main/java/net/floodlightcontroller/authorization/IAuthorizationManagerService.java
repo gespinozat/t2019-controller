@@ -17,7 +17,7 @@ public interface IAuthorizationManagerService extends IFloodlightService {
 	 * 
 	 * 
 	 */
-	public Collection<Community> getPerUserCommunities(String identity, String mac);
+	public void getPerUserCommunities(String identity);
 
 	public Collection<Community> getAllCommunities();
 	

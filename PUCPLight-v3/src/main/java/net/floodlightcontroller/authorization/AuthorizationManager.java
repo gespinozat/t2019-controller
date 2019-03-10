@@ -98,44 +98,49 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 	protected IRoutingService routingService;
 	protected ITopologyService topologyService;
 	
-	protected Map<String, Community> allCois;
-	protected Map<String, Community> perUserCois;
+	//protected Map<String, Community> allCois;
+	//protected Map<String, Community> perUserCois;
 	
 	
-	private OFFactory factory = OFFactories.getFactory(OFVersion.OF_13);
-	
+	private OFFactory factory = OFFactories.getFactory(OFVersion.OF_13);	
 	protected DCommunity dcom = new DCommunity();
 	
-	List<Community> comunidades = dcom.german();
-	Iterator<Community> iterar = comunidades.iterator();
-	
-	public void ver() {
-		
-		for (int i = 0; i < comunidades.size(); i++) {
-			log.info("El nombre de la comunidad {} es {} ", new Object[] {comunidades.get(i).getId(),comunidades.get(i).getName() });
+	/* Testing method:  listing communities per user from database
+	public void test() {
+		String str="gespinoza";
+		if (log.isInfoEnabled()) {
+			log.info("Getting communities for: User {}", new Object[] { str });			
 		}
-		
+		List<Community> prueba = dcom.communitiesPerUser(str);
+		for (int i = 0; i < prueba.size(); i++) {
+			log.info("El nombre de la comunidad {} es {} ", new Object[] {prueba.get(i).getId(),prueba.get(i).getName() });
+		}		
 	}
+	*/
 	
-
 	// IAuthorizationManagerService
 	@Override
-	public Collection<Community> getPerUserCommunities(String identity, String mac) {		
+	public void getPerUserCommunities(String identity) {		
 		if (log.isInfoEnabled()) {
-			log.info("Getting communities for: User {}, logged in MAC {} ", new Object[] { identity, mac });
-			//log.info(identity);
-			//log.info(mac);
+			log.info("Getting communities for: User {}", new Object[] { identity });			
 		}
-		return perUserCois.values();
+		List<Community> perUserCois = dcom.communitiesPerUser(identity);
+		
+		// use virtual network manager api
+		
+		
 	}
 	
 	@Override
 	public Collection<Community> getAllCommunities() {
-		Collection<Community> l= new ArrayList<Community>();
 		// TODO Auto-generated method stub
-		
-		//return allCois.values();
-		return comunidades;
+		List<Community> allCois = dcom.allCommunities();
+		/*
+		for (int i = 0; i < comunidades.size(); i++) {
+			log.info("El nombre de la comunidad {} es {} ", new Object[] {comunidades.get(i).getId(),comunidades.get(i).getName() });
+		}
+		*/
+		return allCois;
 	}
 			
 
@@ -177,15 +182,15 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 		routingService = context.getServiceImpl(IRoutingService.class);
 		topologyService = context.getServiceImpl(ITopologyService.class);
 		
-		allCois = new ConcurrentHashMap<String, Community>();
-		perUserCois = new ConcurrentHashMap<String, Community>();
+		//allCois = new ConcurrentHashMap<String, Community>();
+		//perUserCois = new ConcurrentHashMap<String, Community>();
 		
 	}
 
 	@Override
 	public void startUp(FloodlightModuleContext context) {
 		restApiService.addRestletRoutable(new AuthorizationManagerWebRoutable());
-		//ver();
+		//test();
 		
 	}	
 		

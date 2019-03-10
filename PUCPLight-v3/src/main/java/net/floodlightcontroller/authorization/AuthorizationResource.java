@@ -27,7 +27,12 @@ public class AuthorizationResource extends ServerResource {
         public String name = null;
     }
     
-    protected void jsonToUserDefinition(String json, CommunityDefinition com) throws IOException {
+    public class UserDefinition {
+        public String identity = null;
+        public String mac = null;
+    }
+    
+    protected void jsonToCommunityDefinition(String json, CommunityDefinition com) throws IOException {
         MappingJsonFactory f = new MappingJsonFactory();
         JsonParser jp;
         
@@ -71,6 +76,50 @@ public class AuthorizationResource extends ServerResource {
         jp.close();
     }
     
+    protected void jsonToUserDefinition(String json, UserDefinition user) throws IOException {
+        MappingJsonFactory f = new MappingJsonFactory();
+        JsonParser jp;
+        
+        try {
+            jp = f.createJsonParser(json);
+        } catch (JsonParseException e) {
+            throw new IOException(e);
+        }
+        
+        jp.nextToken();
+        if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
+            throw new IOException("Expected START_OBJECT");
+        }
+        
+        while (jp.nextToken() != JsonToken.END_OBJECT) {
+            if (jp.getCurrentToken() != JsonToken.FIELD_NAME) {
+                throw new IOException("Expected FIELD_NAME");
+            }
+            
+            String n = jp.getCurrentName();
+            jp.nextToken();
+            if (jp.getText().equals("")) 
+                continue;
+            else if (n.equals("user")) {
+                while (jp.nextToken() != JsonToken.END_OBJECT) {
+                    String field = jp.getCurrentName();
+                    if (field == null) continue;
+                    if (field.equals("identity")) {
+                    	user.identity = jp.getText();
+                    } else if (field.equals("mac")) {
+                    	user.mac = jp.getText();
+                    } else {
+                        log.warn("Unrecognized field {} in " +
+                        		"parsing network definition", 
+                        		jp.getText());
+                    }
+                }
+            }
+        }
+        
+        jp.close();
+    }
+    
     
     @Get("json")
     public Collection <Community> retrieve() {
@@ -85,33 +134,33 @@ public class AuthorizationResource extends ServerResource {
     @Put
     @Post
     public String getCommunitiesPerUser(String postData) {        
-    	CommunityDefinition com = new CommunityDefinition();
+    	UserDefinition user = new UserDefinition();
         try {
-        	jsonToUserDefinition(postData, com);
+        	jsonToUserDefinition(postData, user);
         } catch (IOException e) {
             log.error("Could not parse JSON {}", e.getMessage());
         }
         
         // We try to get the ID from the URI only if it's not
         // in the POST data 
-        if (com.id == null) {
-	        String id = (String) getRequestAttributes().get("community");
+        if (user.identity == null) {
+	        String id = (String) getRequestAttributes().get("user");
 	        if ((id != null) && (!id.equals("null")))
-	        	com.id = id;
+	        	user.identity = id;
         }
         
         IAuthorizationManagerService coms =
                 (IAuthorizationManagerService)getContext().getAttributes().
                     get(IAuthorizationManagerService.class.getCanonicalName());
 
-        coms.getPerUserCommunities(com.id, com.name);
+        coms.getPerUserCommunities(user.identity);
         setStatus(Status.SUCCESS_OK);
         return "{\"status\":\"ok\"}";
     }
     
-    
+    // To correct below
     @Delete
-    public String deleteNetwork() {
+    public String deleteCommunity() {
         IAuthorizationManagerService coms =
                 (IAuthorizationManagerService)getContext().getAttributes().
                     get(IAuthorizationManagerService.class.getCanonicalName());
