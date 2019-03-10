@@ -110,7 +110,7 @@ public class AuthorizationResource extends ServerResource {
                     	user.mac = jp.getText();
                     } else {
                         log.warn("Unrecognized field {} in " +
-                        		"parsing network definition", 
+                        		"parsing user definition", 
                         		jp.getText());
                     }
                 }
@@ -140,9 +140,7 @@ public class AuthorizationResource extends ServerResource {
         } catch (IOException e) {
             log.error("Could not parse JSON {}", e.getMessage());
         }
-        
-        // We try to get the ID from the URI only if it's not
-        // in the POST data 
+         
         if (user.identity == null) {
 	        String id = (String) getRequestAttributes().get("user");
 	        if ((id != null) && (!id.equals("null")))
@@ -153,7 +151,7 @@ public class AuthorizationResource extends ServerResource {
                 (IAuthorizationManagerService)getContext().getAttributes().
                     get(IAuthorizationManagerService.class.getCanonicalName());
 
-        coms.getPerUserCommunities(user.identity);
+        coms.getPerUserCommunities(user.identity,user.mac);
         setStatus(Status.SUCCESS_OK);
         return "{\"status\":\"ok\"}";
     }

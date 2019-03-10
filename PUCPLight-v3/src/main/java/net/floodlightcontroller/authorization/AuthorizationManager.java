@@ -1,3 +1,5 @@
+/* G.E.T. 2018*/
+
 package net.floodlightcontroller.authorization;
 
 import java.util.ArrayList;
@@ -97,6 +99,7 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 	protected IStaticFlowEntryPusherService sfp;
 	protected IRoutingService routingService;
 	protected ITopologyService topologyService;
+	protected IVirtualNetworkService networkService;
 	
 	//protected Map<String, Community> allCois;
 	//protected Map<String, Community> perUserCois;
@@ -113,22 +116,26 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 		}
 		List<Community> prueba = dcom.communitiesPerUser(str);
 		for (int i = 0; i < prueba.size(); i++) {
-			log.info("El nombre de la comunidad {} es {} ", new Object[] {prueba.get(i).getId(),prueba.get(i).getName() });
+			log.info("Community ID {} name is '{}' ", new Object[] {prueba.get(i).getId(),prueba.get(i).getName() });
 		}		
 	}
 	*/
 	
 	// IAuthorizationManagerService
 	@Override
-	public void getPerUserCommunities(String identity) {		
+	public void getPerUserCommunities(String identity, String mac) {		
 		if (log.isInfoEnabled()) {
 			log.info("Getting communities for: User {}", new Object[] { identity });			
 		}
 		List<Community> perUserCois = dcom.communitiesPerUser(identity);
 		
-		// use virtual network manager api
-		
-		
+		// Using networkService to add a host (identified by MAC) to a virtual network (community)	
+		for (int i = 0; i < perUserCois.size(); i++) {
+			// addVlanRule(Integer type, String match, String vnid)
+			// type 1: ip
+			// type 2: mac
+			networkService.addVlanRule(2, mac, perUserCois.get(i).getId());
+		}		
 	}
 	
 	@Override
@@ -136,10 +143,16 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 		// TODO Auto-generated method stub
 		List<Community> allCois = dcom.allCommunities();
 		/*
-		for (int i = 0; i < comunidades.size(); i++) {
-			log.info("El nombre de la comunidad {} es {} ", new Object[] {comunidades.get(i).getId(),comunidades.get(i).getName() });
+		for (int i = 0; i < allCois.size(); i++) {
+			log.info("Community ID {} name is '{}' ", new Object[] {allCois.get(i).getId(),allCois.get(i).getName() });
 		}
 		*/
+		
+		// After reading communities from database, creates the communities in the controller
+		// To be checked later. 
+		for (int i = 0; i < allCois.size(); i++) {			
+			networkService.createNetwork(allCois.get(i).getId(),allCois.get(i).getName());
+		}	
 		return allCois;
 	}
 			
@@ -169,6 +182,7 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 		l.add(IStaticFlowEntryPusherService.class);
 		l.add(IRoutingService.class);
 		l.add(ITopologyService.class);
+		l.add(IVirtualNetworkService.class);
 		return l;
 	}
 
@@ -181,7 +195,7 @@ public class AuthorizationManager implements IFloodlightModule, IAuthorizationMa
 		sfp = context.getServiceImpl(IStaticFlowEntryPusherService.class);
 		routingService = context.getServiceImpl(IRoutingService.class);
 		topologyService = context.getServiceImpl(ITopologyService.class);
-		
+		networkService = context.getServiceImpl(IVirtualNetworkService.class);
 		//allCois = new ConcurrentHashMap<String, Community>();
 		//perUserCois = new ConcurrentHashMap<String, Community>();
 		
