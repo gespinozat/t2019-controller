@@ -1,3 +1,6 @@
+curl -X PUT -d '{ "user": { "identity": "gespinoza", "mac": "09:99:88:77:01:00" } }' http://localhost:8080/authorization/authorized/receive/json
+
+
 Floodlight OpenFlow Controller (OSS)
 ====================================
 
