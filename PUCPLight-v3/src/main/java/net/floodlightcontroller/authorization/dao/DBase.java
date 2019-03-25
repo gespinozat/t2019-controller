@@ -15,7 +15,7 @@ public class DBase {
         try {
             String user = "test";
             String pass = "test";
-            String url = "jdbc:mysql://192.168.44.10:3306/radius";
+            String url = "jdbc:mysql://localhost:3306/radius";
 
             conn = DriverManager.getConnection(url, user, pass);
         } catch (SQLException ex) {
